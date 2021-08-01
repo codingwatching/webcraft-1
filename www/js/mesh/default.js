@@ -24,10 +24,10 @@ class Mesh_Default {
             var normal = g.data.normal;
             var buffer = {
                 vertices: [],
-                info: gl.createBuffer()
+                info: null,
             };
             buffer.vertices = new Float32Array(position.length / 3 * VERTICES_POINTS);
-            buffer.info.vertices = buffer.vertices.length / VERTICES_POINTS;
+            buffer.info = createPixiBuffer(buffer.vertices);
             var idx = 0;
             var min_z = 0;
             for(var i = 0; i < position.length / 3; i++) {
@@ -50,8 +50,6 @@ class Mesh_Default {
                     buffer.vertices[i + 2] -= min_z;
                 }
             }
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer.info);
-            gl.bufferData(gl.ARRAY_BUFFER, buffer.vertices, gl.DYNAMIC_DRAW);
             this.buffers.push(buffer);
         }
     }
@@ -65,7 +63,7 @@ class Mesh_Default {
         mat4.identity(modelMatrix);
         mat4.translate(modelMatrix, [a_pos.x, a_pos.y, a_pos.z]);
         // render
-        gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+        render.terrainShader.uniforms.uModelMatrix = modelMatrix;
         gl.disable(gl.CULL_FACE);
         for(var buf of this.buffers) {
             render.drawBuffer(buf.info, a_pos);

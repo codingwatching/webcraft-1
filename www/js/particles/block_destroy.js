@@ -40,18 +40,13 @@ class Particles_Block_Destroy {
                 gravity:        .06,
                 speed:          .00375
             };
-            var d = Math.sqrt(p.x * p.x + p.z * p.z);            
+            var d = Math.sqrt(p.x * p.x + p.z * p.z);
             p.x = p.x / d * p.speed;
             p.z = p.z / d * p.speed;
             this.particles.push(p);
         }
-        this.buffer = gl.createBuffer();
         this.vertices = new Float32Array(this.vertices);
-        this.buffer.vertices = this.vertices.length / 12;
-        //
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-
+        this.buffer = createPixiBuffer(this.vertices);
     }
 
     // Draw
@@ -72,20 +67,19 @@ class Particles_Block_Destroy {
             p.gravity -= delta / 250000;
         }
         //
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
+        this.buffer.updateInternal();
         //
         mat4.identity(modelMatrix);
         var a_pos = new Vector(this.pos.x - Game.shift.x, this.pos.z - Game.shift.z, this.pos.y - Game.shift.y);
         mat4.translate(modelMatrix, [a_pos.x, a_pos.y, a_pos.z]);
         mat4.rotateZ(modelMatrix, this.yaw);
-        gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+        render.terrainShader.uniforms.uModelMatrix = modelMatrix;
         // render
         render.drawBuffer(this.buffer, a_pos);
     }
 
     destroy(render) {
-        render.gl.deleteBuffer(this.buffer);
+        this.buffer.destroy();
     }
 
     isAlive() {

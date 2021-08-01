@@ -7,7 +7,7 @@
 class Helpers {
 
     // str byteToHex(uint8 byte)
-    // converts a single byte to a hex string 
+    // converts a single byte to a hex string
     static byteToHex(byte) {
         return ('0' + byte.toString(16)).slice(-2);
     }
@@ -24,8 +24,8 @@ class Helpers {
     static distance(p, q) {
         var dx   = p.x - q.x;
         var dy   = p.y - q.y;
-        var dz   = p.z - q.z;         
-        var dist = Math.sqrt(dx * dx + dy * dy + dz * dz); 
+        var dz   = p.z - q.z;
+        var dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         return dist;
     }
 
@@ -80,7 +80,7 @@ class Helpers {
         var canvas_temp     = document.createElement('canvas');
         canvas_temp.width   = block_sz;
         canvas_temp.height  = block_sz;
-        // 
+        //
         var canvas          = document.createElement('canvas');
         canvas.width        = image.width;
         canvas.height       = image.height;
@@ -121,7 +121,7 @@ class Helpers {
         }, 'image/png');
     }
 
-    
+
     /* Canvas Donwload */
     static downloadBlobPNG(blob, filename) {
         /// create an "off-screen" anchor tag
@@ -188,53 +188,27 @@ class Helpers {
 // Vector class
 // ==========================================\
 
-function createGLProgram(gl, vertex, fragment, callback) {
+function createGLProgram(pixiRender, vertex, fragment, callback) {
 
     function loadTextFile(url) {
         return fetch(url).then(response => response.text());
-    };
+    }
 
     async function loadShaders() {
         const files = await Promise.all([vertex, fragment].map(loadTextFile));
-        
-        /*
-        var info = webglUtils.createProgramInfo(gl, files);
-        callback(info);
-        */
+        // Program -> webglProgram
+        var pixiProgram = new PIXI.Program(files[0], files[1], vertex);
+        // Shader = Program + uniforms
+        var pixiShader = new PIXI.Shader(pixiProgram);
+        //create WebGLProgram
+        pixiRender.shader.bind(pixiShader);
 
-        var program = gl.createProgram();
-
-        // Compile vertex shader
-        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vertexShader, files[0]);
-        gl.compileShader(vertexShader);
-        gl.attachShader(program, vertexShader);
-        gl.deleteShader(vertexShader);
-        if(!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-            throw "Could not compile vertex shader!\n" + gl.getShaderInfoLog(vertexShader);
-        }
-
-        // Compile fragment shader
-        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fragmentShader, files[1]);
-        gl.compileShader(fragmentShader);
-        gl.attachShader(program, fragmentShader);
-        gl.deleteShader(fragmentShader);
-        if(!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-            throw "Could not compile fragment shader!\n" + gl.getShaderInfoLog(fragmentShader);
-        }
-
-        // Finish program
-        gl.linkProgram(program);
-
-        if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            throw 'Could not link the shader program!';
-        }
-
-        gl.useProgram(program);
+        // WebGLProgram
+        var program = pixiProgram.glPrograms[pixiRender.CONTEXT_UID].program;
 
         callback({
-            program: program
+            program: program,
+            pixiProgram: pixiProgram,
         });
 
     }
@@ -286,7 +260,7 @@ function float2Color(num) {
         b = (num & 0xFF00) >>> 8,
         g = (num & 0xFF0000) >>> 16,
         r = ((num & 0xFF000000) >>> 24 );
-        
+
     return new Color(r, g, b, a);
 }
 
@@ -324,7 +298,7 @@ class MyArray extends Array {
     }
 }
 
-function loadText(url, callback) {   
+function loadText(url, callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType('application/json');
     xobj.open('GET', url, true); // Replace 'my_data' with the path to your file
@@ -334,7 +308,7 @@ function loadText(url, callback) {
             callback(xobj.responseText);
         }
     };
-    xobj.send(null);  
+    xobj.send(null);
 }
 
 function loadJSON(url, callback) {

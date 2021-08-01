@@ -37,7 +37,7 @@ PlayerModel.prototype.draw = function(render, modelMatrix, uModelMat, camPos, de
 
     const gl = this.gl;
     gl.disable(gl.CULL_FACE);
-    
+
     this.drawLayer(render, modelMatrix, uModelMat, camPos, delta, {
         scale:          1.05,
         texture:        this.texPlayer2,
@@ -45,7 +45,7 @@ PlayerModel.prototype.draw = function(render, modelMatrix, uModelMat, camPos, de
     });
 
     gl.enable(gl.CULL_FACE);
-    
+
 }
 
 // loadMesh...
@@ -96,7 +96,7 @@ PlayerModel.prototype.loadPlayerHeadModel = function() {
     var gl = this.gl;
 
     // [x, y, z, tX, tY, lm.r, lm.g, lm.b, lm.a, n.x, n.y, n.z],
-    
+
     // Player head
     var vertices = [
         // Top
@@ -106,7 +106,7 @@ PlayerModel.prototype.loadPlayerHeadModel = function() {
         0.25, 0.25, 0.25, 16/64, 8/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.25, 0.25, 0.25, 8/64, 8/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.25, -0.25, 0.25, 8/64, 0, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
-        
+
         // Bottom
         -0.25, -0.25, -0.25, 16/64, 0, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.25, 0.25, -0.25, 16/64, 8/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
@@ -114,23 +114,23 @@ PlayerModel.prototype.loadPlayerHeadModel = function() {
         0.25, 0.25, -0.25, 24/64, 8/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.25, -0.25, -0.25, 24/64, 0, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.25, -0.25, -0.25, 16/64, 0, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
-        
-        // Front        
+
+        // Front
         -0.25, -0.25, 0.25, 8/64, 8/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.25, -0.25, -0.25, 8/64, 16/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.25, -0.25, -0.25, 16/64, 16/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.25, -0.25, -0.25, 16/64, 16/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.25, -0.25, 0.25, 16/64, 8/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.25, -0.25, 0.25, 8/64, 8/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
-        
-        // Rear        
+
+        // Rear
         -0.25, 0.25, 0.25, 24/64, 8/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.25, 0.25, 0.25, 32/64, 8/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.25, 0.25, -0.25, 32/64, 16/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.25, 0.25, -0.25, 32/64, 16/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.25, 0.25, -0.25, 24/64, 16/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.25, 0.25, 0.25, 24/64, 8/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
-        
+
         // Right
         -0.25, -0.25, 0.25, 16/64, 8/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.25, 0.25, 0.25, 24/64, 8/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
@@ -138,7 +138,7 @@ PlayerModel.prototype.loadPlayerHeadModel = function() {
         -0.25, 0.25, -0.25, 24/64, 16/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.25, -0.25, -0.25, 16/64, 16/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.25, -0.25, 0.25, 16/64, 8/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
-        
+
         // Left
         0.25, -0.25, 0.25, 8/64, 8/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.25, -0.25, -0.25, 8/64, 16/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
@@ -149,11 +149,8 @@ PlayerModel.prototype.loadPlayerHeadModel = function() {
 
     ];
 
-    var buffer = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
-    
+    var buffer = createPixiBuffer(vertices);
+
     return this.playerHead = buffer;
 
 }
@@ -165,7 +162,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
 
     var vertices = [
         // Player torso
-        
+
         // Top
         -0.30, -0.125, 1.45, 20/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.30, -0.125, 1.45, 28/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
@@ -173,7 +170,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.30, 0.125, 1.45, 28/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.30, 0.125, 1.45, 20/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.30, -0.125, 1.45, 20/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
-        
+
         // Bottom
         -0.30, -0.125, 0.73, 28/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.30, 0.125, 0.73, 28/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
@@ -181,23 +178,23 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.30, 0.125, 0.73, 36/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.30, -0.125, 0.73, 36/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.30, -0.125, 0.73, 28/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
-        
-        // Front        
+
+        // Front
         -0.30, -0.125, 1.45, 20/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.30, -0.125, 0.73, 20/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.30, -0.125, 0.73, 28/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.30, -0.125, 0.73, 28/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.30, -0.125, 1.45, 28/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.30, -0.125, 1.45, 20/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
-        
-        // Rear        
+
+        // Rear
         -0.30, 0.125, 1.45, 40/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.30, 0.125, 1.45, 32/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.30, 0.125, 0.73, 32/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.30, 0.125, 0.73, 32/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.30, 0.125, 0.73, 40/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.30, 0.125, 1.45, 40/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
-        
+
         // Right
         -0.30, -0.125, 1.45, 16/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.30, 0.125, 1.45, 20/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
@@ -205,7 +202,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.30, 0.125, 0.73, 20/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.30, -0.125, 0.73, 16/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.30, -0.125, 1.45, 16/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
-        
+
         // Left
         0.30, -0.125, 1.45, 28/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.30, -0.125, 0.73, 28/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
@@ -213,17 +210,14 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.30, 0.125, 0.73, 32/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.30, 0.125, 1.45, 32/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.30, -0.125, 1.45, 28/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
-        
+
     ];
-    
-    var buffer = this.playerBody = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer );
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+
+    var buffer = this.playerBody = createPixiBuffer(vertices);
 
     var vertices = [
         // Left arm
-        
+
         // Top
         0.30, -0.125, 0.05, 44/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.55, -0.125, 0.05, 48/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
@@ -231,7 +225,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.55,  0.125, 0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.30,  0.125, 0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.30, -0.125, 0.05, 44/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
-        
+
         // Bottom
         0.30, -0.125, -0.67, 48/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.30,  0.125, -0.67, 48/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
@@ -239,23 +233,23 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.55,  0.125, -0.67, 52/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.55, -0.125, -0.67, 52/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.30, -0.125, -0.67, 48/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
-        
-        // Front        
+
+        // Front
         0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.30, -0.125, -0.67, 48/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.55, -0.125, -0.67, 44/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.55, -0.125, -0.67, 44/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
-        
-        // Rear        
+
+        // Rear
         0.30, 0.125,  0.05, 52/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.55, 0.125,  0.05, 56/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.55, 0.125, -0.67, 56/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.55, 0.125, -0.67, 56/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.30, 0.125, -0.67, 52/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.30, 0.125,  0.05, 52/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
-        
+
         // Right
         0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.30,  0.125,  0.05, 52/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
@@ -263,7 +257,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.30,  0.125, -0.67, 52/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.30, -0.125, -0.67, 48/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
-        
+
         // Left
         0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.55, -0.125, -0.67, 44/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
@@ -271,17 +265,14 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.55,  0.125, -0.67, 40/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.55,  0.125,  0.05, 40/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
-        
+
     ];
 
-    var buffer = this.playerLeftArm = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.DYNAMIC_DRAW);
+    var buffer = this.playerLeftArm = createPixiBuffer(vertices);
 
     var vertices = [
         // Right arm
-        
+
         // Top
         -0.55, -0.125, 0.05, 44/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.30, -0.125, 0.05, 48/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
@@ -289,7 +280,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.30,  0.125, 0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.55,  0.125, 0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -0.55, -0.125, 0.05, 44/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
-        
+
         // Bottom
         -0.55, -0.125, -0.67, 52/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.55,  0.125, -0.67, 52/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
@@ -297,23 +288,23 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.30,  0.125, -0.67, 48/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.30, -0.125, -0.67, 48/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         -0.55, -0.125, -0.67, 52/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
-        
-        // Front        
+
+        // Front
         -0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.55, -0.125, -0.67, 44/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.30, -0.125, -0.67, 48/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.30, -0.125, -0.67, 48/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
-        
-        // Rear        
+
+        // Rear
         -0.55, 0.125,  0.05, 56/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.30, 0.125,  0.05, 52/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.30, 0.125, -0.67, 52/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.30, 0.125, -0.67, 52/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.55, 0.125, -0.67, 56/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.55, 0.125,  0.05, 56/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
-        
+
         // Right
         -0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.55,  0.125,  0.05, 40/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
@@ -321,7 +312,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.55,  0.125, -0.67, 40/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.55, -0.125, -0.67, 44/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         -0.55, -0.125,  0.05, 44/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
-        
+
         // Left
         -0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         -0.30, -0.125, -0.67, 48/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
@@ -329,17 +320,14 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.30,  0.125, -0.67, 52/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         -0.30,  0.125,  0.05, 52/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         -0.30, -0.125,  0.05, 48/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
-        
+
     ];
-    
-    var buffer = this.playerRightArm = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.DYNAMIC_DRAW);
+
+    var buffer = this.playerRightArm = createPixiBuffer(vertices);
 
     var vertices = [
         // Left leg
-        
+
         // Top
         0.01, -0.125, 0, 4/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.3,  -0.125, 0, 8/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
@@ -347,7 +335,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.3,   0.125, 0, 8/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.01,  0.125, 0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         0.01, -0.125, 0, 4/64, 16/64, 1, 1, 1, 1, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
-        
+
         // Bottom
         0.01, -0.125, -0.73,  8/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.01,  0.125, -0.73,  8/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
@@ -355,23 +343,23 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.3,   0.125, -0.73, 12/64, 20/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.3,  -0.125, -0.73, 12/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
         0.01, -0.125, -0.73,  8/64, 16/64, 1, 1, 1, 1, NORMALS.DOWN.x, NORMALS.DOWN.y, NORMALS.DOWN.z,
-        
-        // Front        
+
+        // Front
         0.01, -0.125,     0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.01, -0.125, -0.73, 4/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.3,  -0.125, -0.73, 8/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.3,  -0.125, -0.73, 8/64, 32/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.3,  -0.125,     0, 8/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         0.01, -0.125,     0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
-        
-        // Rear        
+
+        // Rear
         0.01, 0.125,     0, 12/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.3,  0.125,     0, 16/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.3,  0.125, -0.73, 16/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.3,  0.125, -0.73, 16/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.01, 0.125, -0.73, 12/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         0.01, 0.125,     0, 12/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
-        
+
         // Right
         0.01, -0.125,     0,  8/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.01,  0.125,     0, 12/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
@@ -379,7 +367,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.01,  0.125, -0.73, 12/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.01, -0.125, -0.73,  8/64, 32/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
         0.01, -0.125,     0,  8/64, 20/64, 1, 1, 1, 1, NORMALS.RIGHT.x, NORMALS.RIGHT.y, NORMALS.RIGHT.z,
-        
+
         // Left
         0.3, -0.125,     0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.3, -0.125, -0.73, 4/64, 32/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
@@ -388,11 +376,8 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         0.3,  0.125,     0, 0/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
         0.3, -0.125,     0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
     ];
-    
-    var buffer = this.playerLeftLeg = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+
+    var buffer = this.playerLeftLeg = createPixiBuffer(vertices);
 
     var vertices = [
         // Right leg
@@ -421,7 +406,7 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.01, -0.125,     0, 8/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
         -0.3,  -0.125,     0, 4/64, 20/64, 1, 1, 1, 1, NORMALS.FORWARD.x, NORMALS.FORWARD.y, NORMALS.FORWARD.z,
 
-        // Rear        
+        // Rear
         -0.3,  0.125,     0, 16/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.01, 0.125,     0, 12/64, 20/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
         -0.01, 0.125, -0.73, 12/64, 32/64, 1, 1, 1, 1, NORMALS.BACK.x, NORMALS.BACK.y, NORMALS.BACK.z,
@@ -446,16 +431,16 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
         -0.01, -0.125,     0,  8/64, 20/64, 1, 1, 1, 1, NORMALS.LEFT.x, NORMALS.LEFT.y, NORMALS.LEFT.z,
     ];
 
-    var buffer = this.playerRightLeg = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+    var buffer = this.playerRightLeg = createPixiBuffer(vertices);
 
 }
 
 // drawLayer
 PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPos, delta, options) {
-    
+
+    const shader = render.terrainShader;
+    const pixiRender = render.pixiRender;
+
     const gl        = this.gl;
     const scale     = options.scale;
     const z_minus   = (this.height * options.scale - this.height);
@@ -501,7 +486,7 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
     mat4.scale(modelMatrix, [scale, scale, scale]);
     mat4.rotateZ(modelMatrix, Math.PI - this.yaw);
     mat4.rotateX(modelMatrix, -pitch);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    shader.uniforms.uModelMatrix = modelMatrix;
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, options.texture);
@@ -512,30 +497,31 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
     mat4.translate(modelMatrix, [this.pos.x - Game.shift.x, this.pos.z - Game.shift.z, this.pos.y + 0.01 - z_minus / 2]);
     mat4.scale(modelMatrix, [scale, scale, scale]);
     mat4.rotateZ(modelMatrix, Math.PI - this.yaw);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    //TODO: move modelMatrix to different uniform group
+    shader.uniforms.uModelMatrix = modelMatrix;
     render.drawBuffer(this.playerBody, a_pos);
 
     // Left arm
     mat4.translate(modelMatrix, [ 0, 0, 1.4]);
     mat4.rotateX(modelMatrix, 0.75 * aniangle);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    shader.uniforms.uModelMatrix = modelMatrix;
     render.drawBuffer(this.playerLeftArm, a_pos);
 
     // Right arm
     mat4.rotateX(modelMatrix, -1.5 * aniangle);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    shader.uniforms.uModelMatrix = modelMatrix;
     render.drawBuffer(this.playerRightArm, a_pos);
     mat4.rotateX(modelMatrix, 0.75 * aniangle);
     mat4.translate(modelMatrix, [ 0, 0, -0.67] );
 
     // Right leg
     mat4.rotateX(modelMatrix, 0.5 * aniangle);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    shader.uniforms.uModelMatrix = modelMatrix;
     render.drawBuffer(this.playerRightLeg, a_pos);
 
     // Left leg
     mat4.rotateX(modelMatrix, -aniangle);
-    gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+    shader.uniforms.uModelMatrix = modelMatrix;
     render.drawBuffer(this.playerLeftLeg, a_pos);
 
     if(options.draw_nametag) {
@@ -548,12 +534,12 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
         // Calculate angle so that the nametag always faces the local player
         var angZ = -Math.PI/2 + Math.atan2((camPos[2] - Game.shift.z) - (this.pos.z - Game.shift.z), (camPos[0] - Game.shift.x) - (this.pos.x - Game.shift.x));
         var angX = 0; // @todo
-        
+
         mat4.translate(modelMatrix, [this.pos.x - Game.shift.x, this.pos.z - Game.shift.z, this.pos.y + (this.height + 0.35) * options.scale - z_minus]);
         mat4.rotateZ(modelMatrix, angZ);
         mat4.rotateX(modelMatrix, angX);
         mat4.scale(modelMatrix, [0.005, 1, 0.005]);
-        gl.uniformMatrix4fv(uModelMat, false, modelMatrix);
+        shader.uniforms.uModelMatrix = modelMatrix;
         gl.bindTexture(gl.TEXTURE_2D, this.nametag.texture);
 
         gl.disable(gl.CULL_FACE);
@@ -595,10 +581,7 @@ PlayerModel.prototype.buildPlayerName = function(nickname) {
         -w/2, 0, 0, w/256, h/64, 1, 1, 1, 0.7, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
         -w/2, 0, h, w/256, 0, 1, 1, 1, 0.7, NORMALS.UP.x, NORMALS.UP.y, NORMALS.UP.z,
     ];
-    var buffer = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    var buffer = createPixiBuffer(vertices);
     return {
         texture: tex,
         model: buffer

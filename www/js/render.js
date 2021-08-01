@@ -39,9 +39,17 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     var that                = this;
     that.canvas             = document.getElementById(renderSurfaceId);
 	that.canvas.renderer    = that;
+
+    var pixiRender = that.pixiRender = new PIXI.Renderer({
+        view: that.canvas,
+        antialias: false,
+        depth: true,
+        premultipliedAlpha: false
+    });
+
 	this.skyBox             = null;
     this.videoCardInfoCache = null;
-    
+
     // Create projection and view matrices
     that.projMatrix         = mat4.create();
     that.viewMatrix         = mat4.create();
@@ -50,34 +58,48 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
 
     this.setWorld(world);
 	// Initialise WebGL
-	var gl;
-	try {
-        gl = that.gl = that.canvas.getContext('webgl2', {antialias: false, depth: true, premultipliedAlpha: false});
-        // gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT);
-	} catch (e) {
-		throw 'Your browser doesn\'t support WebGL!';
-	}
+	var gl = that.gl = pixiRender.context.gl;
+	// throw 'Your browser doesn\'t support WebGL!';
 
 	gl.viewportWidth        = that.canvas.width;
 	gl.viewportHeight       = that.canvas.height;
-	gl.enable(gl.DEPTH_TEST);
-	gl.enable(gl.CULL_FACE);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    
+
+	var state = that.state = new PIXI.State();
+	state.depthTest = true;
+	state.culling = true;
+	state.blendMode = PIXI.BLEND_MODES.NORMAL_NPM;
+
+	pixiRender.state.set(state);
+
     // PickAt
     this.pickAt             = new PickAt(this, gl);
 
 	// Create main program
-    createGLProgram(gl, './shaders/main/vertex.glsl', './shaders/main/fragment.glsl', function(info) {
+    createGLProgram(pixiRender, './shaders/main/vertex.glsl', './shaders/main/fragment.glsl',
+        function(info) {
 
         var program = that.program = info.program;
+
+        var shader = that.terrainShader = new PIXI.Shader(info.pixiProgram, {
+            uProjMatrix: mat4.create(),
+            u_worldView: mat4.create(),
+            uModelMatrix: mat4.create(),
+            u_add_pos: new Float32Array(3),
+            u_fogColor: new Float32Array(4),
+            u_fogDensity: 0,
+            u_fogOn: false,
+            u_chunkBlockDist: 0,
+            u_resolution: new Float32Array(2),
+            u_time: 0,
+            u_brightness: 0,
+        });
 
         gl.useProgram(program);
 
         // Store variable locations
-        that.uProjMat           = gl.getUniformLocation(program, 'uProjMatrix');
-        that.uModelMatrix       = gl.getUniformLocation(program, 'u_worldView');
-        that.uModelMat          = gl.getUniformLocation(program, 'uModelMatrix');
+        // that.uProjMat           = gl.getUniformLocation(program, 'uProjMatrix');
+        // that.uModelMatrix       = gl.getUniformLocation(program, 'u_worldView');
+        // that.uModelMat          = gl.getUniformLocation(program, 'uModelMatrix');
         that.u_texture          = gl.getUniformLocation(program, 'u_texture');
         that.u_texture_mask     = gl.getUniformLocation(program, 'u_texture_mask');
         that.a_position         = gl.getAttribLocation(program, 'a_position');
@@ -85,25 +107,20 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
         that.a_texcoord         = gl.getAttribLocation(program, 'a_texcoord');
         that.a_normal           = gl.getAttribLocation(program, 'a_normal');
         // fog
-        that.u_add_pos          = gl.getUniformLocation(program, 'u_add_pos');
-        that.u_fogColor         = gl.getUniformLocation(program, 'u_fogColor');
-        that.u_fogDensity       = gl.getUniformLocation(program, 'u_fogDensity');
-        that.u_fogAddColor      = gl.getUniformLocation(program, 'u_fogAddColor');
-        that.u_fogOn            = gl.getUniformLocation(program, 'u_fogOn');
-        that.u_chunkBlockDist   = gl.getUniformLocation(program, 'u_chunkBlockDist');
-        //
-        that.u_resolution       = gl.getUniformLocation(program, 'u_resolution');
-        that.u_time             = gl.getUniformLocation(program, 'u_time');
-        that.u_brightness       = gl.getUniformLocation(program, 'u_brightness');
+        // that.u_add_pos          = gl.getUniformLocation(program, 'u_add_pos');
+        // that.u_fogColor         = gl.getUniformLocation(program, 'u_fogColor');
+        // that.u_fogDensity       = gl.getUniformLocation(program, 'u_fogDensity');
+        // that.u_fogAddColor      = gl.getUniformLocation(program, 'u_fogAddColor');
+        // that.u_fogOn            = gl.getUniformLocation(program, 'u_fogOn');
+        // that.u_chunkBlockDist   = gl.getUniformLocation(program, 'u_chunkBlockDist');
+        // //
+        // that.u_resolution       = gl.getUniformLocation(program, 'u_resolution');
+        // that.u_time             = gl.getUniformLocation(program, 'u_time');
+        // that.u_brightness       = gl.getUniformLocation(program, 'u_brightness');
 
-        // Enable input
-        gl.enableVertexAttribArray(that.a_position);
-        gl.enableVertexAttribArray(that.a_texcoord);
-        gl.enableVertexAttribArray(that.a_color);
-        gl.enableVertexAttribArray(that.a_normal);
         that.setBrightness(that.world.saved_state.brightness ? that.world.saved_state.brightness : 1);
         // Create projection and view matrices
-        gl.uniformMatrix4fv(that.uModelMat, false, that.modelMatrix);
+        shader.uniforms.uModelMatrix = that.modelMatrix;
         // Create 1px white texture for pure vertex color operations (e.g. picking)
         var whiteTexture        = that.texWhite = gl.createTexture();
         var white               = new Uint8Array([255, 255, 255, 255]);
@@ -144,11 +161,18 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     });
 
     // SkyBox
-    createGLProgram(gl, './shaders/skybox/vertex.glsl', './shaders/skybox/fragment.glsl', function(info) {
+    createGLProgram(pixiRender, './shaders/skybox/vertex.glsl', './shaders/skybox/fragment.glsl', function(info) {
         const program = info.program;
         gl.useProgram(program);
-        const vertexBuffer = gl.createBuffer();
-        const indexBuffer = gl.createBuffer();
+
+        const shader = new PIXI.Shader(info.pixiProgram, {
+            u_lookAtMatrix: new Float32Array(16),
+            u_projectionMatrix: new Float32Array(16),
+            u_brightness_value: 0,
+        });
+
+        const geom = new PIXI.Geometry();
+
         const vertexData = [
             -1,-1, 1,
             1,-1, 1,
@@ -164,28 +188,15 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
             1,5,6,6,2,1, 0,4,7,7,3,0,
             3,2,6,6,7,3, 0,1,5,5,4,0
         ];
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indexData), gl.STATIC_DRAW);
+
+        geom.addAttribute('a_vertex', vertexData, 3, false, PIXI.TYPES.FLOAT)
+            .addIndex(indexData);
+
         that.skyBox = {
             gl:         gl,
             program:    program,
             texture:    gl.createTexture(),
             loaded:     false,
-            attribute: {
-                vertex: gl.getAttribLocation(program, 'a_vertex')
-            },
-            uniform: {
-                texture: gl.getUniformLocation(program, 'u_texture'),
-                lookAtMatrix: gl.getUniformLocation(program, 'u_lookAtMatrix'),
-                projectionMatrix: gl.getUniformLocation(program, 'u_projectionMatrix'),
-                u_brightness_value: gl.getUniformLocation(program, 'u_brightness_value')
-            },
-            buffer: {
-                vertex: vertexBuffer,
-                index: indexBuffer
-            },
             draw: function(_lookAtMatrix, _projectionMatrix) {
                 if(!this.loaded) {
                     return;
@@ -196,22 +207,23 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
                 _lookAtMatrix[13] = 0;
                 _lookAtMatrix[14] = 0;
                 this.gl.useProgram(this.program);
-                // brightness
-                this.gl.uniform1f(this.uniform.u_brightness_value, that.brightness);
+
+                shader.uniforms.u_brightness_value = that.brightness;
+                shader.uniforms.u_lookAtMatrix = _lookAtMatrix;
+                shader.uniforms.u_projectionMatrix = _projectionMatrix;
+                pixiRender.shader.bind(shader);
                 // skybox
-                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer.vertex);
-                this.gl.vertexAttribPointer(this.attribute.vertex, 3, this.gl.FLOAT, false, 0, 0);
-                this.gl.enableVertexAttribArray(this.attribute.vertex);
-                this.gl.uniform1i(this.uniform.texture, 0);
                 this.gl.activeTexture(this.gl.TEXTURE0);
                 this.gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
-                this.gl.uniformMatrix4fv(this.uniform.lookAtMatrix, false, _lookAtMatrix);
-                this.gl.uniformMatrix4fv(this.uniform.projectionMatrix, false, _projectionMatrix);
                 this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
                 this.gl.disable(this.gl.CULL_FACE);
                 this.gl.disable(this.gl.DEPTH_TEST);
-                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer.index);
-                this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_BYTE, 0);
+
+                pixiRender.geometry.bind(geom);
+
+                this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, 0);
+
+                pixiRender.geometry.unbind();
                 this.gl.enable(this.gl.CULL_FACE);
                 this.gl.enable(this.gl.DEPTH_TEST);
             }
@@ -259,9 +271,15 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     });
 
 	// HUD
-    createGLProgram(gl, './shaders/hud/vertex.glsl', './shaders/hud/fragment.glsl', function(info) {
+    createGLProgram(pixiRender, './shaders/hud/vertex.glsl', './shaders/hud/fragment.glsl', function(info) {
 		const program = info.program;
         // Build main HUD
+        var shader = new PIXI.Shader(info.pixiProgram, {
+            u_noDraw: false,
+            u_noCrosshair: false,
+            u_resolution: new Float32Array(2),
+        });
+
         Game.hud = new HUD(0, 0);
         that.HUD = {
             gl: gl,
@@ -271,28 +289,21 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
             bufRect: null,
             uniform: {
                 texture:        gl.getUniformLocation(program, 'u_texture'),
-                u_noDraw:       gl.getUniformLocation(program, 'u_noDraw'),
-                u_noCrosshair:  gl.getUniformLocation(program, 'u_noCrosshair'),
-                u_resolution:   gl.getUniformLocation(program, 'u_resolution')
-            },
-            attribute: {
-                // v_attr_inx:     gl.getAttribLocation(program, 'inPos')
             },
             draw: function() {
                 const gl = this.gl;
-                gl.useProgram(this.program);
                 Game.hud.draw();
-                gl.uniform2f(this.uniform.u_resolution, gl.viewportWidth * window.devicePixelRatio, gl.viewportHeight * window.devicePixelRatio);
-                gl.uniform1f(this.uniform.u_noCrosshair, Game.hud.wm.getVisibleWindows().length > 0);
+                shader.uniforms.u_resolution[0] = gl.viewportWidth * window.devicePixelRatio;
+                shader.uniforms.u_resolution[1] = gl.viewportHeight * window.devicePixelRatio;
+                shader.uniforms.u_noCrosshair = Game.hud.wm.getVisibleWindows().length > 0;
+                pixiRender.shader.bind(shader);
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, this.texture);
                 gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
                 if(this.tick++ % 2 == 0) {
                     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, Game.hud.canvas);
                 }
-                if(!this.vertexBuffer) {
-                    this.vertexBuffer = gl.createBuffer();
-                    this.indexBuffer = gl.createBuffer();
+                if(!this.geom) {
                     const vertexData = [
                         -1, -1,
                          1, -1,
@@ -303,18 +314,13 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
                         0, 1, 2,
                         1, 2, 3
                     ];
-                    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-                    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
-                    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indexData), gl.STATIC_DRAW);
+                    this.geom = new PIXI.Geometry();
+                    this.geom.addAttribute('inPos', vertexData, 2, false, PIXI.TYPES.FLOAT)
+                        .addIndex(indexData);
                 }
-                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-                var v_attr_inx = this.attribute.v_attr_inx;
-                gl.vertexAttribPointer(v_attr_inx, 2, gl.FLOAT, false, 0, 0);
-                gl.enableVertexAttribArray(v_attr_inx);
+                pixiRender.geometry.bind(this.geom);
                 gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-                gl.disableVertexAttribArray(v_attr_inx);
+                pixiRender.geometry.unbind();
             }
         }
         // Create HUD texture
@@ -362,6 +368,7 @@ Renderer.prototype.draw = function(delta) {
 
     var that = this;
 	var gl = this.gl;
+	var pixiRender = this.pixiRender;
 
     // console.log(Game.world.renderer.camPos[2]);
     //if(Game.world.localPlayer.pos.z + 1.7 < 63.8) {
@@ -383,8 +390,11 @@ Renderer.prototype.draw = function(delta) {
     // gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(...currentRenderState.fogColor);
-    gl.uniform4fv(this.u_fogColor, currentRenderState.fogColor);
-    gl.uniform1f(this.u_chunkBlockDist, CHUNK_RENDER_DIST * CHUNK_SIZE_X - CHUNK_SIZE_X * 2);
+
+    const shader = this.terrainShader;
+
+    shader.uniforms.u_fogColor = currentRenderState.fogColor;
+    shader.uniforms.u_chunkBlockDist = CHUNK_RENDER_DIST * CHUNK_SIZE_X - CHUNK_SIZE_X * 2;
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // 1. Draw skybox
@@ -395,34 +405,38 @@ Renderer.prototype.draw = function(delta) {
     // 2. Draw level chunks
     gl.useProgram(this.program);
     // setCamera
-    gl.uniformMatrix4fv(this.uModelMatrix, false, this.viewMatrix);
+    shader.uniforms.u_worldView = this.viewMatrix;
     // setPerspective
     // const zoom = this.world.localPlayer.keys[KEY.C] ? 0.3 : 1;
     mat4.perspective(this.fov, gl.viewportWidth / gl.viewportHeight, this.min, this.max, this.projMatrix);
-    gl.uniformMatrix4fv(this.uProjMat, false, this.projMatrix);
+    shader.uniforms.uProjMatrix = this.projMatrix;
+
     // Picking
-    this.pickAt.draw();
+    this.pickAt.draw(); // USE SHADER HERE
     // set the fog color and near, far settings
     // fog1
-    gl.uniform1f(this.u_fogDensity, currentRenderState.fogDensity);
-    gl.uniform4fv(this.u_fogAddColor, currentRenderState.fogAddColor);
-    gl.uniform1f(this.u_fogOn, true);
+    shader.uniforms.u_fogDensity = currentRenderState.fogDensity;
+    shader.uniforms.u_fogAddColor = currentRenderState.fogAddColor;
+    shader.uniforms.u_fogOn = true;
     // resolution
-    gl.uniform2f(this.u_resolution, gl.viewportWidth, gl.viewportHeight);
-    gl.uniform1f(this.u_time, performance.now() / 1000);
-    gl.uniform1f(this.u_brightness, this.brightness);
+    shader.uniforms.u_resolution[0] = gl.viewportWidth;
+    shader.uniforms.u_resolution[1] = gl.viewportHeight;
+    shader.uniforms.u_time = performance.now() / 1000;
+    shader.uniforms.u_brightness = this.brightness;
+
+    pixiRender.shader.bind(shader);
 
     gl.enable(gl.BLEND);
 
     // gl.activeTexture(gl.TEXTURE4);
     // gl.bindTexture(gl.TEXTURE_2D, this.texTerrain);
-    
+
     // gl.activeTexture(gl.TEXTURE5);
     // gl.bindTexture(gl.TEXTURE_2D, this.texTerrainMask);
 
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    
+
     // Draw chunks
     this.world.chunkManager.draw(this);
     this.world.draw(this, delta, this.modelMatrix, this.uModelMat);
@@ -515,19 +529,21 @@ Renderer.prototype.setCamera = function(pos, ang) {
 
 // drawBuffer...
 Renderer.prototype.drawBuffer = function(buffer, a_pos) {
-    if (buffer.vertices === 0) {
+    if (buffer.size === 0) {
         return;
     }
 
 	var gl = this.gl;
-    gl.uniform3fv(this.u_add_pos, [a_pos.x, a_pos.y, a_pos.z]);
-	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	gl.vertexAttribPointer(this.a_position, 3, gl.FLOAT, false, 12 * 4, 0);
-	gl.vertexAttribPointer(this.a_color,    4, gl.FLOAT, false, 12 * 4, 5 * 4);
-    gl.vertexAttribPointer(this.a_texcoord, 2, gl.FLOAT, false, 12 * 4, 3 * 4);
-	gl.vertexAttribPointer(this.a_normal,   3, gl.FLOAT, false, 12 * 4, 9 * 4);
-    // gl.drawArrays(gl.LINES, 0, buffer.vertices);
-    gl.drawArrays(gl.TRIANGLES, 0, buffer.vertices);
+    const shader = this.terrainShader;
+    const pixiRender = this.pixiRender;
+    shader.uniforms.u_add_pos[0] = a_pos.x;
+    shader.uniforms.u_add_pos[1] = a_pos.y;
+    shader.uniforms.u_add_pos[2] = a_pos.z;
+    pixiRender.shader.bind(shader);
+	this.pixiRender.geometry.bind(buffer);
+    // gl.drawArrays(gl.LINES, 0, buffer.size);
+    gl.drawArrays(gl.TRIANGLES, 0, buffer.size);
+    this.pixiRender.geometry.unbind();
 }
 
 // getVideoCardInfo...

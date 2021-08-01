@@ -83,8 +83,7 @@ Chunk.prototype.doShift = function(shift) {
             list[i + 1] -= z;
             points += 2;
         }
-        gl.bindBuffer(gl.ARRAY_BUFFER, v.buffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, list);
+        v.buffer.updateInternal();
     }
     return points;
 }
@@ -108,16 +107,13 @@ Chunk.prototype.applyVertices = function() {
     // gl.useProgram(this.world.renderer.program);
     // Delete old WebGL buffers
     for(const [key, v] of Object.entries(this.vertices)) {
-        gl.deleteBuffer(v.buffer);
+        v.buffer.destroy();
         delete(this.vertices[key]);
     }
     // Добавление чанка в отрисовщик
     for(const [key, v] of Object.entries(args.vertices)) {
         this.vertices_length  += v.list.length / 12;
-        v.buffer              = gl.createBuffer();
-        v.buffer.vertices     = v.list.length / 12;
-        gl.bindBuffer(gl.ARRAY_BUFFER, v.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, v.list, gl.DYNAMIC_DRAW);
+        v.buffer              = createPixiBuffer(v.list);
         this.vertices[key]    = v;
         // debugger;
     }
@@ -149,7 +145,7 @@ Chunk.prototype.destruct = function() {
     }
     var gl = this.world.renderer.gl;
     if(this.buffer) {
-        gl.deleteBuffer(this.buffer);
+        this.buffer.destroy();
     }
     // Run webworker method
     this.chunkManager.postWorkerMessage(['destructChunk', {key: this.key}]);

@@ -98,7 +98,7 @@ PickAt.prototype.draw = function() {
 * can be retrieved by simply reading the pixel the mouse is over.
 **/
 PickAt.prototype.pickAt = function(min, max, mx, my) {
-    
+
     var render = this.render;
     var world = render.world;
 
@@ -129,12 +129,11 @@ PickAt.prototype.pickAt = function(min, max, mx, my) {
         vertices[i + 0] -= (Game.shift.x);
         vertices[i + 1] -= (Game.shift.z);
     }
-    
+
     var gl = render.gl;
 
-    gl.useProgram(render.program);
+    // // Create framebuffer for picking render
     gl.activeTexture(gl.TEXTURE0);
-    // Create framebuffer for picking render
     var fbo = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     var bt = gl.createTexture();
@@ -147,37 +146,35 @@ PickAt.prototype.pickAt = function(min, max, mx, my) {
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 512, 512);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, bt, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
-    var buffer = gl.createBuffer();
-    buffer.vertices = vertices.length / 12;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-    // Draw buffer
-    gl.uniform1f(render.u_fogOn, false);
+    if (!this.buffer) {
+        this.buffer = createPixiBuffer(vertices);
+    } else {
+        this.buffer.updateInternal(new Float32Array(vertices));
+    }
+
+    render.terrainShader.uniforms.u_fogOn = false;
     gl.activeTexture(gl.TEXTURE4);
     gl.bindTexture(gl.TEXTURE_2D, render.texWhite);
     gl.viewport(0, 0, 512, 512);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND);
-    render.drawBuffer(buffer, new Vector(0, 0, 0));
+    render.drawBuffer(this.buffer, new Vector(0, 0, 0));
     gl.enable(gl.BLEND);
-    
+
     // Read pixel
     var pixel = new Uint8Array(4);
     gl.readPixels(mx / gl.viewportWidth * 512, (1 - my / gl.viewportHeight) * 512, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
-    gl.uniform1f(render.u_fogOn, true);
     // Reset states
     gl.bindTexture(gl.TEXTURE_2D, render.texTerrain);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    // Clean up
-    gl.deleteBuffer(buffer);
     gl.deleteRenderbuffer(renderbuffer);
     gl.deleteTexture(bt);
     gl.deleteFramebuffer(fbo);
 
     // Build result
-    if(pixel[0] == 255) {
+    if(pixel[0] == 255 || pixel[0] === 0) {
         return false;
     }
     var normal;
