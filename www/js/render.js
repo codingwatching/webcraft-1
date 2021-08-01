@@ -54,6 +54,16 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     that.projMatrix         = mat4.create();
     that.viewMatrix         = mat4.create();
     that.modelMatrix        = mat4.create(); // Create dummy model matrix
+
+    that.projectionUniforms = new PIXI.UniformGroup({
+       uProjMatrix: this.projMatrix,
+        u_worldView: this.viewMatrix
+    }, true);
+
+    that.uModelMat = new PIXI.UniformGroup({
+        uModelMatrix: that.modelMatrix
+    }, true);
+
     mat4.identity(that.modelMatrix);
 
     this.setWorld(world);
@@ -81,9 +91,8 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
         var program = that.program = info.program;
 
         var shader = that.terrainShader = new PIXI.Shader(info.pixiProgram, {
-            uProjMatrix: mat4.create(),
-            u_worldView: mat4.create(),
-            uModelMatrix: mat4.create(),
+            projectionUniforms: that.projectionUniforms,
+            uModelMat: that.uModelMat,
             u_add_pos: new Float32Array(3),
             u_fogColor: new Float32Array(4),
             u_fogDensity: 0,
@@ -119,8 +128,6 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
         // that.u_brightness       = gl.getUniformLocation(program, 'u_brightness');
 
         that.setBrightness(that.world.saved_state.brightness ? that.world.saved_state.brightness : 1);
-        // Create projection and view matrices
-        shader.uniforms.uModelMatrix = that.modelMatrix;
         // Create 1px white texture for pure vertex color operations (e.g. picking)
         var whiteTexture        = that.texWhite = gl.createTexture();
         var white               = new Uint8Array([255, 255, 255, 255]);
@@ -404,12 +411,10 @@ Renderer.prototype.draw = function(delta) {
 
     // 2. Draw level chunks
     gl.useProgram(this.program);
-    // setCamera
-    shader.uniforms.u_worldView = this.viewMatrix;
     // setPerspective
     // const zoom = this.world.localPlayer.keys[KEY.C] ? 0.3 : 1;
     mat4.perspective(this.fov, gl.viewportWidth / gl.viewportHeight, this.min, this.max, this.projMatrix);
-    shader.uniforms.uProjMatrix = this.projMatrix;
+    this.projectionUniforms.update();
 
     // Picking
     this.pickAt.draw(); // USE SHADER HERE
@@ -439,7 +444,7 @@ Renderer.prototype.draw = function(delta) {
 
     // Draw chunks
     this.world.chunkManager.draw(this);
-    this.world.draw(this, delta, this.modelMatrix, this.uModelMat);
+    this.world.draw(this, delta, this.uModelMat);
 
     // 3. Draw players
     this.drawPlayers(delta);
@@ -459,12 +464,12 @@ Renderer.prototype.drawPlayers = function(delta) {
     gl.useProgram(this.program);
     for(const [id, player] of Object.entries(this.world.players)) {
         if(player.id != this.world.server.id) {
-            player.draw(this, this.modelMatrix, this.uModelMat, this.camPos, delta);
+            player.draw(this, this.uModelMat, this.camPos, delta);
         }
     }
     // Restore Matrix
     mat4.identity(this.modelMatrix);
-    gl.uniformMatrix4fv(this.uModelMat, false, this.modelMatrix);
+    this.uModelMat.update();
 }
 
 /**

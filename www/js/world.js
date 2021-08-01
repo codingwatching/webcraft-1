@@ -33,10 +33,10 @@ function World(saved_state, connectedCallback) {
                 this.list[key].destroy(render);
                 delete(this.list[key]);
             },
-            draw: function(render, delta, modelMatrix, uModelMat) {
+            draw: function(render, delta, uModelMat) {
                 for(const [key, mesh] of Object.entries(this.list)) {
                     if(mesh.isAlive()) {
-                        mesh.draw(render, delta, modelMatrix, uModelMat);
+                        mesh.draw(render, delta, uModelMat);
                     } else {
                         this.remove(key, render)
                     }
@@ -59,8 +59,8 @@ function World(saved_state, connectedCallback) {
 
 }
 // Draw
-World.prototype.draw = function(render, delta, modelMatrix, uModelMat) {
-    this.meshes.draw(render, delta, modelMatrix, uModelMat);
+World.prototype.draw = function(render, delta, uModelMat) {
+    this.meshes.draw(render, delta, uModelMat);
     return true;
 }
 

@@ -50,7 +50,8 @@ class Particles_Block_Destroy {
     }
 
     // Draw
-    draw(render, delta, modelMatrix, uModelMat) {
+    draw(render, delta, uModelMat) {
+        const modelMatrix = uModelMat.uniforms.uModelMatrix;
         var gl = render.gl;
         //
         this.life -= delta / 100000;
@@ -73,7 +74,7 @@ class Particles_Block_Destroy {
         var a_pos = new Vector(this.pos.x - Game.shift.x, this.pos.z - Game.shift.z, this.pos.y - Game.shift.y);
         mat4.translate(modelMatrix, [a_pos.x, a_pos.y, a_pos.z]);
         mat4.rotateZ(modelMatrix, this.yaw);
-        render.terrainShader.uniforms.uModelMatrix = modelMatrix;
+        uModelMat.update();
         // render
         render.drawBuffer(this.buffer, a_pos);
     }

@@ -28,8 +28,8 @@ function PlayerModel(props) {
 }
 
 // draw
-PlayerModel.prototype.draw = function(render, modelMatrix, uModelMat, camPos, delta) {
-    this.drawLayer(render, modelMatrix, uModelMat, camPos, delta, {
+PlayerModel.prototype.draw = function(render, uModelMat, camPos, delta) {
+    this.drawLayer(render, uModelMat, camPos, delta, {
         scale:          1.0,
         texture:        this.texPlayer,
         draw_nametag:   false
@@ -38,7 +38,7 @@ PlayerModel.prototype.draw = function(render, modelMatrix, uModelMat, camPos, de
     const gl = this.gl;
     gl.disable(gl.CULL_FACE);
 
-    this.drawLayer(render, modelMatrix, uModelMat, camPos, delta, {
+    this.drawLayer(render, uModelMat, camPos, delta, {
         scale:          1.05,
         texture:        this.texPlayer2,
         draw_nametag:   true
@@ -436,10 +436,11 @@ PlayerModel.prototype.loadPlayerBodyModel = function(gl) {
 }
 
 // drawLayer
-PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPos, delta, options) {
+PlayerModel.prototype.drawLayer = function(render, uModelMat, camPos, delta, options) {
 
     const shader = render.terrainShader;
     const pixiRender = render.pixiRender;
+    const modelMatrix = uModelMat.uniforms.uModelMatrix;
 
     const gl        = this.gl;
     const scale     = options.scale;
@@ -486,7 +487,7 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
     mat4.scale(modelMatrix, [scale, scale, scale]);
     mat4.rotateZ(modelMatrix, Math.PI - this.yaw);
     mat4.rotateX(modelMatrix, -pitch);
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, options.texture);
@@ -498,30 +499,30 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
     mat4.scale(modelMatrix, [scale, scale, scale]);
     mat4.rotateZ(modelMatrix, Math.PI - this.yaw);
     //TODO: move modelMatrix to different uniform group
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
     render.drawBuffer(this.playerBody, a_pos);
 
     // Left arm
     mat4.translate(modelMatrix, [ 0, 0, 1.4]);
     mat4.rotateX(modelMatrix, 0.75 * aniangle);
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
     render.drawBuffer(this.playerLeftArm, a_pos);
 
     // Right arm
     mat4.rotateX(modelMatrix, -1.5 * aniangle);
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
     render.drawBuffer(this.playerRightArm, a_pos);
     mat4.rotateX(modelMatrix, 0.75 * aniangle);
     mat4.translate(modelMatrix, [ 0, 0, -0.67] );
 
     // Right leg
     mat4.rotateX(modelMatrix, 0.5 * aniangle);
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
     render.drawBuffer(this.playerRightLeg, a_pos);
 
     // Left leg
     mat4.rotateX(modelMatrix, -aniangle);
-    shader.uniforms.uModelMatrix = modelMatrix;
+    uModelMat.update();
     render.drawBuffer(this.playerLeftLeg, a_pos);
 
     if(options.draw_nametag) {
@@ -539,7 +540,7 @@ PlayerModel.prototype.drawLayer = function(render, modelMatrix, uModelMat, camPo
         mat4.rotateZ(modelMatrix, angZ);
         mat4.rotateX(modelMatrix, angX);
         mat4.scale(modelMatrix, [0.005, 1, 0.005]);
-        shader.uniforms.uModelMatrix = modelMatrix;
+        uModelMat.update();
         gl.bindTexture(gl.TEXTURE_2D, this.nametag.texture);
 
         gl.disable(gl.CULL_FACE);

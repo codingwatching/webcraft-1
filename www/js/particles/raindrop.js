@@ -31,7 +31,8 @@ class Particles_Raindrop {
     }
 
     // Draw
-    draw(render, delta, modelMatrix, uModelMat) {
+    draw(render, delta, uModelMat) {
+        const modelMatrix = uModelMat.uniforms.uModelMatrix;
         var gl      = render.gl;
         this.life   -= delta / 100000;
         delta       /= 1000;
@@ -41,7 +42,7 @@ class Particles_Raindrop {
         mat4.identity(modelMatrix);
         mat4.translate(modelMatrix, [a_pos.x, a_pos.y, a_pos.z]);
         mat4.rotateZ(modelMatrix, this.yaw);
-        render.terrainShader.uniforms.uModelMatrix = modelMatrix;
+        uModelMat.update();
         // render
         render.drawBuffer(this.buffer, a_pos);
     }

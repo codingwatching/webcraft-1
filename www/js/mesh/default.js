@@ -55,7 +55,8 @@ class Mesh_Default {
     }
 
     // Draw
-    draw(render, delta, modelMatrix, uModelMat) {
+    draw(render, delta, uModelMat) {
+        const modelMatrix = uModelMat.uniforms.uModelMatrix;
         var gl = render.gl;
         var program = render.program;
         var a_pos = new Vector(this.pos.x - Game.shift.x, this.pos.z - Game.shift.z, this.pos.y - Game.shift.y);
@@ -63,7 +64,7 @@ class Mesh_Default {
         mat4.identity(modelMatrix);
         mat4.translate(modelMatrix, [a_pos.x, a_pos.y, a_pos.z]);
         // render
-        render.terrainShader.uniforms.uModelMatrix = modelMatrix;
+        uModelMat.update();
         gl.disable(gl.CULL_FACE);
         for(var buf of this.buffers) {
             render.drawBuffer(buf.info, a_pos);
