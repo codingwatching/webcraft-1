@@ -98,20 +98,18 @@ Chunk.prototype.onVerticesGenerated = function(args) {
 Chunk.prototype.applyVertices = function() {
     const args = this.vertices_args;
     delete(this['vertices_args']);
-    // var tm = performance.now();
     this.buildVerticesInProgress    = false;
     this.vertices_length            = 0;
     this.gravity_blocks             = args.gravity_blocks;
     this.fluid_blocks               = args.fluid_blocks;
     var gl = this.world.renderer.gl;
-    // gl.useProgram(this.world.renderer.program);
     // Delete old WebGL buffers
-    for(const [key, v] of Object.entries(this.vertices)) {
+    for(let [key, v] of Object.entries(this.vertices)) {
         v.buffer.destroy();
         delete(this.vertices[key]);
     }
     // Добавление чанка в отрисовщик
-    for(const [key, v] of Object.entries(args.vertices)) {
+    for(let [key, v] of Object.entries(args.vertices)) {
         this.vertices_length  += v.list.length / 12;
         v.buffer              = createPixiBuffer(v.list);
         this.vertices[key]    = v;
@@ -122,15 +120,6 @@ Chunk.prototype.applyVertices = function() {
     this.timers                = args.timers;
     this.lightmap              = args.lightmap;
     this.doShift(Game.shift);
-    /*
-    tm = performance.now() - tm;
-    console.log(
-        args.timers.build_vertices +
-        ' (terrain: ' + args.timers.generate_terrain + ') ' +
-        tm + ' ms ' +
-        JSON.stringify(args).length + ' bytes'
-    );
-    */
 }
 
 // getChunkModifiers

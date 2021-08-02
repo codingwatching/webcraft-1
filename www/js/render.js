@@ -85,8 +85,7 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     this.pickAt             = new PickAt(this, gl);
 
 	// Create main program
-    createGLProgram(pixiRender, './shaders/main/vertex.glsl', './shaders/main/fragment.glsl',
-        function(info) {
+    Helpers.createGLProgram(pixiRender, './shaders/main/vertex.glsl', './shaders/main/fragment.glsl', function(info) {
 
         var program = that.program = info.program;
 
@@ -137,6 +136,14 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
+        var blackTexture        = that.texBlack = gl.createTexture();
+        var black               = new Uint8Array([0, 0, 0, 255]);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, blackTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, black);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
         // Terrain texture
         gl.uniform1i(that.u_texture, 4);
         var terrainTexture          = that.texTerrain = gl.createTexture();
@@ -168,7 +175,7 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     });
 
     // SkyBox
-    createGLProgram(pixiRender, './shaders/skybox/vertex.glsl', './shaders/skybox/fragment.glsl', function(info) {
+    Helpers.createGLProgram(pixiRender, './shaders/skybox/vertex.glsl', './shaders/skybox/fragment.glsl', function(info) {
         const program = info.program;
         gl.useProgram(program);
 
@@ -278,7 +285,7 @@ function Renderer(world, renderSurfaceId, settings, initCallback) {
     });
 
 	// HUD
-    createGLProgram(pixiRender, './shaders/hud/vertex.glsl', './shaders/hud/fragment.glsl', function(info) {
+    Helpers.createGLProgram(pixiRender, './shaders/hud/vertex.glsl', './shaders/hud/fragment.glsl', function(info) {
 		const program = info.program;
         // Build main HUD
         var shader = new PIXI.Shader(info.pixiProgram, {
@@ -412,7 +419,6 @@ Renderer.prototype.draw = function(delta) {
     // 2. Draw level chunks
     gl.useProgram(this.program);
     // setPerspective
-    // const zoom = this.world.localPlayer.keys[KEY.C] ? 0.3 : 1;
     mat4.perspective(this.fov, gl.viewportWidth / gl.viewportHeight, this.min, this.max, this.projMatrix);
     this.projectionUniforms.update();
 
@@ -432,15 +438,6 @@ Renderer.prototype.draw = function(delta) {
     pixiRender.shader.bind(shader);
 
     gl.enable(gl.BLEND);
-
-    // gl.activeTexture(gl.TEXTURE4);
-    // gl.bindTexture(gl.TEXTURE_2D, this.texTerrain);
-
-    // gl.activeTexture(gl.TEXTURE5);
-    // gl.bindTexture(gl.TEXTURE_2D, this.texTerrainMask);
-
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
     // Draw chunks
     this.world.chunkManager.draw(this);
@@ -462,6 +459,10 @@ Renderer.prototype.draw = function(delta) {
 Renderer.prototype.drawPlayers = function(delta) {
     var gl = this.gl;
     gl.useProgram(this.program);
+
+    gl.activeTexture(gl.TEXTURE5);
+    gl.bindTexture(gl.TEXTURE_2D, this.texBlack);
+
     for(const [id, player] of Object.entries(this.world.players)) {
         if(player.id != this.world.server.id) {
             player.draw(this, this.uModelMat, this.camPos, delta);
@@ -470,6 +471,10 @@ Renderer.prototype.drawPlayers = function(delta) {
     // Restore Matrix
     mat4.identity(this.modelMatrix);
     this.uModelMat.update();
+    gl.activeTexture(gl.TEXTURE4);
+    gl.bindTexture(gl.TEXTURE_2D, this.texTerrain);
+    gl.activeTexture(gl.TEXTURE5);
+    gl.bindTexture(gl.TEXTURE_2D, this.texTerrainMask);
 }
 
 /**
@@ -517,19 +522,6 @@ Renderer.prototype.setCamera = function(pos, ang) {
         -pos[2] + Game.shift.z,
         -pos[1] + y_add
     ], this.viewMatrix);
-
-/*
-    var z_add = Math.cos(this.world.localPlayer.walking_frame * (15 * (this.world.localPlayer.running ? 1.5 : 1))) * .025;
-    if(this.world.localPlayer.walking) {
-        // ang[1] += Math.cos(this.world.localPlayer.walking_frame * 15) * 0.0025;
-    }
-	this.camPos = pos;
-	mat4.identity(this.viewMatrix);
-	mat4.rotate(this.viewMatrix, -ang[0] - Math.PI / 2, [ 1, 0, 0 ], this.viewMatrix);
-	mat4.rotate(this.viewMatrix, ang[1], [ 0, 0, 1 ], this.viewMatrix);
-	mat4.rotate(this.viewMatrix, -ang[2], [ 0, 1, 0 ], this.viewMatrix);
-    mat4.translate(this.viewMatrix, [-pos[0] + Game.shift.x, -pos[2] + Game.shift.z, -pos[1] + z_add], this.viewMatrix);
-    */
 }
 
 // drawBuffer...
@@ -537,7 +529,6 @@ Renderer.prototype.drawBuffer = function(buffer, a_pos) {
     if (buffer.size === 0) {
         return;
     }
-
 	var gl = this.gl;
     const shader = this.terrainShader;
     const pixiRender = this.pixiRender;
@@ -556,7 +547,7 @@ Renderer.prototype.getVideoCardInfo = function() {
     if(this.videoCardInfoCache) {
         return this.videoCardInfoCache;
     }
-    var gl = this.gl; // document.createElement('canvas').getContext('webgl');
+    var gl = this.gl;
     if (!gl) {
         return {
             error: 'no webgl',

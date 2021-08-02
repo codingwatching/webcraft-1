@@ -7,7 +7,7 @@
 class Helpers {
 
     // str byteToHex(uint8 byte)
-    // converts a single byte to a hex string
+    // converts a single byte to a hex string 
     static byteToHex(byte) {
         return ('0' + byte.toString(16)).slice(-2);
     }
@@ -24,8 +24,8 @@ class Helpers {
     static distance(p, q) {
         var dx   = p.x - q.x;
         var dy   = p.y - q.y;
-        var dz   = p.z - q.z;
-        var dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        var dz   = p.z - q.z;         
+        var dist = Math.sqrt(dx * dx + dy * dy + dz * dz); 
         return dist;
     }
 
@@ -71,57 +71,6 @@ class Helpers {
         }, 'image/png');
     }
 
-    // Раскрашивание текстуры
-    static colorizeTerrainTexture(image, callback) {
-        var that = this;
-        // Высчитываем ширину и высоту одного блока
-        const block_sz      = image.width / 32;
-        //
-        var canvas_temp     = document.createElement('canvas');
-        canvas_temp.width   = block_sz;
-        canvas_temp.height  = block_sz;
-        //
-        var canvas          = document.createElement('canvas');
-        canvas.width        = image.width;
-        canvas.height       = image.height;
-        var ctx             = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0, image.width, image.height);
-        //
-        ctx.globalCompositeOperation = 'multiply';
-        // Блок травы (grass block)
-        ctx.fillStyle = '#80a755ff';
-        // ctx.fillRect(0, 0, block_sz, block_sz);
-        // Шапка травы
-        /*
-            // img, sx, sy, swidth, sheight, x, y, width, height
-            ctx.fillRect(block_sz * 3, 0, block_sz, block_sz);
-            canvas_temp.save();
-            // копирование земли во временный
-            canvas_temp.drawImage(ctx, block_sz * 2, 0, block_sz, block_sz, 0, 0, block_sz, block_sz);
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.fillRect(block_sz * 3, 0, block_sz, block_sz);
-            canvas_temp.restore();
-        */
-        var imgd = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var pix = imgd.data;
-        for(var x = block_sz * 8; x < block_sz * 8 + block_sz; x++) {
-            for(var y = block_sz * 2; y < block_sz * 2 + block_sz; y++) {
-                var i = (y * canvas.width + x) * 4;
-                if(pix[i + 3] > 0) {
-                    ctx.fillStyle = '#80a755ff'; // 'rgba(' + [r, g, b, (a / 255)].join(',') + ')';
-                    // ctx.fillRect(x, y, 1, 1);
-                }
-            }
-        }
-        // ctx.fillRect(block_sz * 8, block_sz * 2, block_sz, block_sz);
-        canvas.toBlob(function(blob) {
-            var filefromblob = new File([blob], 'image.png', {type: 'image/png'});
-            // that.downloadBlobPNG(blob);
-            callback(filefromblob);
-        }, 'image/png');
-    }
-
-
     /* Canvas Donwload */
     static downloadBlobPNG(blob, filename) {
         /// create an "off-screen" anchor tag
@@ -146,7 +95,6 @@ class Helpers {
 
     // IntersectRayBrick
     static IntersectRayBrick(ray, brick) {
-
         // check whether initial point is inside the parallelepiped
         if ((ray.start[0] >= brick.min_point[0]) &&
             (ray.start[0] <= brick.max_point[0]) &&
@@ -156,12 +104,10 @@ class Helpers {
             (ray.start[2] <= brick.max_point[2])) {
             return true;
         }
-
         // ray parameter
         var t_near = Number.MIN_SAFE_INTEGER;
         var t_far = Number.MAX_SAFE_INTEGER;
         var t1, t2;
-
         // directions loop
         for (var i = 0; i < 3; i++) {
             if (Math.abs(ray.direction[i]) >= Number.EPSILON) {
@@ -178,42 +124,97 @@ class Helpers {
                 }
             }
         }
-
         return (t_near <= t_far && t_far >=0);
     }
 
-}
-
-// ==========================================
-// Vector class
-// ==========================================\
-
-function createGLProgram(pixiRender, vertex, fragment, callback) {
-
-    function loadTextFile(url) {
-        return fetch(url).then(response => response.text());
+    static deg2rad(degrees) {
+        return degrees * (Math.PI / 180);
     }
-
-    async function loadShaders() {
-        const files = await Promise.all([vertex, fragment].map(loadTextFile));
-        // Program -> webglProgram
-        var pixiProgram = new PIXI.Program(files[0], files[1], vertex);
-        // Shader = Program + uniforms
-        var pixiShader = new PIXI.Shader(pixiProgram);
-        //create WebGLProgram
-        pixiRender.shader.bind(pixiShader);
-
-        // WebGLProgram
-        var program = pixiProgram.glPrograms[pixiRender.CONTEXT_UID].program;
-
-        callback({
-            program: program,
-            pixiProgram: pixiProgram,
+    
+    static rad2deg(radians) {
+        return radians * 180 / Math.PI;
+    }
+    
+    static loadJSON(url, callback) {
+        loadText(url, function(text) {
+            callback(JSON.parse(text));
         });
-
+    }
+    
+    static saveJSON(data, filename) {
+        if(!data) {
+            console.error('No data')
+            return;
+        }
+        if(!filename) filename = 'console.json'
+        if(typeof data === "object"){
+            data = JSON.stringify(data); // , undefined, 4)
+        }
+        var blob = new Blob([data], {type: 'text/json'}),
+            e    = document.createEvent('MouseEvents'),
+            a    = document.createElement('a')
+        a.download = filename
+        a.href = window.URL.createObjectURL(blob)
+        a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
+        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+        a.dispatchEvent(e)
     }
 
-    loadShaders();
+    // createGLProgram...
+    static createGLProgram(pixiRender, vertex, fragment, callback) {
+        function loadTextFile(url) {
+            return fetch(url).then(response => response.text());
+        }
+
+        async function loadShaders() {
+            const files = await Promise.all([vertex, fragment].map(loadTextFile));
+            // Program -> webglProgram
+            var pixiProgram = new PIXI.Program(files[0], files[1], vertex);
+            // Shader = Program + uniforms
+            var pixiShader = new PIXI.Shader(pixiProgram);
+            //create WebGLProgram
+            pixiRender.shader.bind(pixiShader);
+
+            // WebGLProgram
+            var program = pixiProgram.glPrograms[pixiRender.CONTEXT_UID].program;
+
+            callback({
+                program: program,
+                pixiProgram: pixiProgram,
+            });
+        }
+
+        loadShaders();
+    }
+
+    // lineRectCollide( line, rect )
+    //
+    // Checks if an axis-aligned line and a bounding box overlap.
+    // line = { y, x1, x2 } or line = { x, y1, y2 }
+    // rect = { x, y, size }
+    static lineRectCollide(line, rect) {
+        if(line.z != null) {
+            return  rect.z > line.z - rect.size / 2 &&
+                    rect.z < line.z + rect.size / 2 &&
+                    rect.x > line.x1 - rect.size / 2 &&
+                    rect.x < line.x2 + rect.size / 2;
+        }
+        return  rect.x > line.x - rect.size / 2 &&
+                rect.x < line.x + rect.size / 2 &&
+                rect.z > line.z1 - rect.size / 2 &&
+                rect.z < line.z2 + rect.size / 2;
+    }
+
+    // rectRectCollide( r1, r2 )
+    //
+    // Checks if two rectangles (x1, y1, x2, y2) overlap.
+    static rectRectCollide(r1, r2) {
+        if(r2.x1 > r1.x1 && r2.x1 < r1.x2 && r2.z1 > r1.z1 && r2.z1 < r1.z2 ) return true;
+        if(r2.x2 > r1.x1 && r2.x2 < r1.x2 && r2.z1 > r1.z1 && r2.z1 < r1.z2 ) return true;
+        if(r2.x2 > r1.x1 && r2.x2 < r1.x2 && r2.z2 > r1.z1 && r2.z2 < r1.z2 ) return true;
+        if(r2.x1 > r1.x1 && r2.x1 < r1.x2 && r2.z2 > r1.z1 && r2.z2 < r1.z2 ) return true;
+        return false;
+    }
 
 }
 
@@ -244,43 +245,8 @@ Color.prototype.toFloat = function()  {
     return new Color(this.r / 255, this.g / 255, this.b / 255, this.a / 255);
 }
 
-function color2Int(color) {
-    return ((color.r & 0xFF) << 24) + ((color.g & 0xFF) << 16) + ((color.b & 0xFF) << 8) + (color.a);
-}
-
-function color2Float(color) {
-    var i = color2Int(color);
-    return i / 4294967295;
-}
-
-function float2Color(num) {
-    num = parseInt(num * 4294967295);
-    num >>>= 0;
-    var a = num & 0xFF,
-        b = (num & 0xFF00) >>> 8,
-        g = (num & 0xFF0000) >>> 16,
-        r = ((num & 0xFF000000) >>> 24 );
-
-    return new Color(r, g, b, a);
-}
-
-function deg2rad(degrees) {
-    return degrees * (Math.PI / 180);
-}
-
-function rad2deg(radians) {
-    return radians * 180 / Math.PI;
-}
-
-// Angle in degree between two Vector
-function getAngleDegree(origin, target) {
-    var n = 270 - (Math.atan2(origin.y - target.y, origin.x - target.x)) * 180 / Math.PI;
-    return n % 360;
-}
-
 class MyArray extends Array {
     sortBy(...args) {
-        // return this.sort(dynamicSortMultiple(...args));
         return this.sort(function(obj1, obj2) {
             if(!Game.world || !Game.world.localPlayer) {
                 return;
@@ -298,7 +264,7 @@ class MyArray extends Array {
     }
 }
 
-function loadText(url, callback) {
+function loadText(url, callback) {   
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType('application/json');
     xobj.open('GET', url, true); // Replace 'my_data' with the path to your file
@@ -308,34 +274,7 @@ function loadText(url, callback) {
             callback(xobj.responseText);
         }
     };
-    xobj.send(null);
-}
-
-function loadJSON(url, callback) {
-    loadText(url, function(text) {
-        callback(JSON.parse(text));
-    });
-}
-
-function saveJSON(data, filename) {
-    if(!data) {
-        console.error('No data')
-        return;
-    }
-    if(!filename) filename = 'console.json'
-
-    if(typeof data === "object"){
-        data = JSON.stringify(data); // , undefined, 4)
-    }
-    var blob = new Blob([data], {type: 'text/json'}),
-        e    = document.createEvent('MouseEvents'),
-        a    = document.createElement('a')
-
-    a.download = filename
-    a.href = window.URL.createObjectURL(blob)
-    a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
-    e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-    a.dispatchEvent(e)
+    xobj.send(null);  
 }
 
 function Vector(x, y, z) {
@@ -382,39 +321,7 @@ Vector.prototype.toString = function() {
 	return '(' + this.x + ',' + this.y + ',' + this.z + ')';
 }
 
-// lineRectCollide( line, rect )
-//
-// Checks if an axis-aligned line and a bounding box overlap.
-// line = { y, x1, x2 } or line = { x, y1, y2 }
-// rect = { x, y, size }
-
-function lineRectCollide(line, rect) {
-	if(line.z != null) {
-		return  rect.z > line.z - rect.size / 2 &&
-                rect.z < line.z + rect.size / 2 &&
-                rect.x > line.x1 - rect.size / 2 &&
-                rect.x < line.x2 + rect.size / 2;
-    }
-    return  rect.x > line.x - rect.size / 2 &&
-            rect.x < line.x + rect.size / 2 &&
-            rect.z > line.z1 - rect.size / 2 &&
-            rect.z < line.z2 + rect.size / 2;
-}
-
-// rectRectCollide( r1, r2 )
-//
-// Checks if two rectangles (x1, y1, x2, y2) overlap.
-
-function rectRectCollide(r1, r2) {
-	if(r2.x1 > r1.x1 && r2.x1 < r1.x2 && r2.z1 > r1.z1 && r2.z1 < r1.z2 ) return true;
-	if(r2.x2 > r1.x1 && r2.x2 < r1.x2 && r2.z1 > r1.z1 && r2.z1 < r1.z2 ) return true;
-	if(r2.x2 > r1.x1 && r2.x2 < r1.x2 && r2.z2 > r1.z1 && r2.z2 < r1.z2 ) return true;
-	if(r2.x1 > r1.x1 && r2.x1 < r1.x2 && r2.z2 > r1.z1 && r2.z2 < r1.z2 ) return true;
-	return false;
-}
-
 // Export to node.js
-if(typeof( exports ) != "undefined" )
-{
+if(typeof(exports) != 'undefined') {
 	exports.Vector = Vector;
 }
