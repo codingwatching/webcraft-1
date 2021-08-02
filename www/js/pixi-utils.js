@@ -1,5 +1,8 @@
 function createPixiBuffer(vertices) {
     const geom = new PIXI.Geometry();
+    if (vertices instanceof Array) {
+        vertices = new Float32Array(vertices);
+    }
     const buf = new PIXI.Buffer(vertices, false);
 
     //TODO: stream or dynamic?

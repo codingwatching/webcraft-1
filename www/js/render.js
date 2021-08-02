@@ -396,7 +396,6 @@ Renderer.prototype.draw = function(delta) {
     //}
 
 	// Initialise view
-    gl.useProgram(this.program);
 	this.updateViewport();
 
     // Говорим WebGL, как преобразовать координаты
@@ -407,7 +406,7 @@ Renderer.prototype.draw = function(delta) {
 
     const shader = this.terrainShader;
 
-    shader.uniforms.u_fogColor = currentRenderState.fogColor;
+    shader.uniforms.u_fogColor.set(currentRenderState.fogColor, 0);
     shader.uniforms.u_chunkBlockDist = CHUNK_RENDER_DIST * CHUNK_SIZE_X - CHUNK_SIZE_X * 2;
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -417,7 +416,6 @@ Renderer.prototype.draw = function(delta) {
     }
 
     // 2. Draw level chunks
-    gl.useProgram(this.program);
     // setPerspective
     mat4.perspective(this.fov, gl.viewportWidth / gl.viewportHeight, this.min, this.max, this.projMatrix);
     this.projectionUniforms.update();
