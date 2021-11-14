@@ -7,6 +7,7 @@ const {mat4} = glMatrix;
 export class PlayerModel {
 
     constructor(props) {
+
         this.texPlayer                  = null;
         this.texPlayer2                 = null;
 
@@ -95,12 +96,82 @@ export class PlayerModel {
 
     }
 
+    //
+    push_part(vertices, x, y, z, xs, zs, ys, tex_up_down, tex_front, tex_side) {
+
+        let lm              = MULTIPLY.COLOR.WHITE;
+        let flags           = 0;
+        let sideFlags       = 0;
+        let upFlags         = 0;
+        let ao              = [0, 0, 0, 0];
+
+        let top_rotate      = [xs, 0, 0, 0, zs, 0]; // Поворот верхней поверхностной текстуры
+        let bottom_rotate   = [xs, 0, 0, 0, -zs, 0];
+        let north_rotate    = [xs, 0, 0, 0, 0, -ys];
+        let south_rotate    = [xs, 0, 0, 0, 0, ys];
+        let west_rotate     = [0, -zs, 0, 0, 0, ys];
+        let east_rotate     = [0, zs, 0, 0, 0, ys];
+
+        // TOP
+        vertices.push(x, z, y + ys,
+            ...top_rotate,
+            tex_up_down[0], tex_up_down[1], tex_up_down[2], tex_up_down[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags | upFlags);
+        // BOTTOM
+        vertices.push(x, z, y,
+            ...bottom_rotate,
+            tex_up_down[0], tex_up_down[1], tex_up_down[2], tex_up_down[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags);
+        // SOUTH
+        vertices.push(x, z - zs/2, y + ys/2,
+            ...south_rotate,
+            tex_front[0], tex_front[1], tex_front[2], -tex_front[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags | sideFlags);
+        // NORTH
+        vertices.push(x, z + zs/2, y + ys/2,
+            ...north_rotate,
+            tex_front[0], tex_front[1], -tex_front[2], tex_front[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags | sideFlags);
+        // WEST
+        vertices.push(x - xs/2, z, y + ys/2,
+            ...west_rotate,
+            tex_side[0], tex_side[1], tex_side[2], -tex_side[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags | sideFlags);
+        // EAST
+        vertices.push(x + xs/2, z, y + ys/2,
+            ...east_rotate,
+            tex_side[0], tex_side[1], tex_side[2], -tex_side[3],
+            lm.r, lm.g, lm.b,
+            ao[0], ao[1], ao[2], ao[3], flags | sideFlags);
+    }
+
     // Loads the player head model into a vertex buffer for rendering.
     loadPlayerHeadModel() {
 
+        let lm = {r: 0, g: 0, b: 0, a: 0};
+
+        /*
         // [x, y, z, tX, tY, lm.r, lm.g, lm.b, lm.a, n.x, n.y, n.z],
 
-        let lm = {r: 0, g: 0, b: 0, a: 0};
+        let neighbours  = {
+            UP: null,
+            DOWN: null,
+            NORTH: null,
+            SOUTH: null,
+            WEST: null,
+            EAST: null
+        };
+
+        let vertices = [];
+        push_cube(block, this.vertices, FakeCloudWorld, null, x, y, z, neighbours, null, false);
+
+        return this.playerHead = new GeometryTerrain(GeometryTerrain.convertFrom12(vertices));
+        */
 
         // Player head
         let vertices = [

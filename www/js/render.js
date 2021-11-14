@@ -14,6 +14,7 @@ import Particles_Raindrop from "./particles/raindrop.js";
 import Particles_Sun from "./particles/sun.js";
 import Particles_Clouds from "./particles/clouds.js";
 import {MeshManager} from "./mesh_manager.js";
+import { MinimalGLTFLoader } from "/vendors/minimal-gltf-loader.js";
 
 const {mat4} = glMatrix;
 
@@ -139,6 +140,16 @@ export class Renderer {
                 Game.hud.draw();
             }
         }
+
+        // glTFLoader
+        this.glTFLoader = new MinimalGLTFLoader.glTFLoader(this.gl);
+        this.glTFLoader.loadGLTF('/data/gltf/mob1/mob1.gltf', {baseUri: ''}, function(glTF) {
+            console.log('glTF', glTF);
+            /*
+            for(let buf of glTF.bufferViews) {
+                buf.createBuffer()
+            }*/
+        });
 
         callback();
     }
